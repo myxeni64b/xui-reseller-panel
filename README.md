@@ -608,7 +608,7 @@ Also consider adding a `.gitignore` for:
 
 ## Suggestions for future improvements
 
-Good next steps if you want to extend the project further:
+Good next steps idea to extend the project further:
 
 - admin 2FA
 - IP allowlist for admin login
@@ -623,14 +623,7 @@ Good next steps if you want to extend the project further:
 
 ## License / ownership
 
-Add your own license text here before publishing.
-
-If this is a private business panel, make that explicit in the repository.
-
-Example:
-
-- Proprietary / internal use only
-- or your selected open-source license
+GPLv3 (Prior to the license selling this panel is prohibited)
 
 ---
 
@@ -642,5 +635,3 @@ This project is best viewed as a **3x-ui reseller operations panel** with:
 - reseller-centric business logic
 - JSON-based portability
 - a broad feature set layered on top of node management
-
-If you publish it to GitHub, this README is a good base to start from and adjust with your branding, license, screenshots, and deployment examples.
