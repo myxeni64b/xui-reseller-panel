@@ -1,0 +1,113 @@
+#!/usr/bin/env python3
+"""
+Minimal reseller API example for the panel.
+Rename this file to reseller_api_example.py before running it.
+
+Supports:
+- plain JSON mode with standard Python 3
+- encrypted mode if admin enabled API encryption and pycryptodome is installed
+
+Encrypted mode dependency:
+    pip install pycryptodome
+"""
+
+import base64
+import hashlib
+import json
+import os
+import urllib.request
+import urllib.error
+
+BASE_URL = "https://your-panel.example.com"
+API_KEY = "PASTE_RESELLER_API_KEY_HERE"
+USE_ENCRYPTION = False  # set True if admin enabled API encryption
+
+try:
+    from Crypto.Cipher import AES
+    from Crypto.Util.Padding import pad, unpad
+except Exception:
+    AES = None
+    pad = None
+    unpad = None
+
+
+def api_crypto_key(api_key: str) -> bytes:
+    return hashlib.sha256(("panel-api|" + api_key).encode("utf-8")).digest()
+
+
+def encrypt_payload(data: dict) -> dict:
+    if AES is None:
+        raise RuntimeError("Encrypted mode requires: pip install pycryptodome")
+    iv = os.urandom(16)
+    plain = json.dumps(data, separators=(",", ":")).encode("utf-8")
+    cipher = AES.new(api_crypto_key(API_KEY), AES.MODE_CBC, iv)
+    encrypted = cipher.encrypt(pad(plain, AES.block_size))
+    return {
+        "iv": base64.b64encode(iv).decode("ascii"),
+        "payload": base64.b64encode(encrypted).decode("ascii"),
+    }
+
+
+def decrypt_payload(packet: dict) -> dict:
+    if AES is None:
+        raise RuntimeError("Encrypted mode requires: pip install pycryptodome")
+    iv = base64.b64decode(packet["iv"])
+    payload = base64.b64decode(packet["payload"])
+    cipher = AES.new(api_crypto_key(API_KEY), AES.MODE_CBC, iv)
+    plain = unpad(cipher.decrypt(payload), AES.block_size)
+    return json.loads(plain.decode("utf-8"))
+
+
+def api_request(method: str, path: str, data=None):
+    url = BASE_URL.rstrip("/") + "/api/reseller" + path
+    headers = {
+        "Accept": "application/json",
+        "X-Reseller-Api-Key": API_KEY,
+    }
+    body = None
+    if method != "GET" and data is not None:
+        payload = encrypt_payload(data) if USE_ENCRYPTION else data
+        body = json.dumps(payload).encode("utf-8")
+        headers["Content-Type"] = "application/json"
+
+    request = urllib.request.Request(url, data=body, headers=headers, method=method)
+    try:
+        with urllib.request.urlopen(request, timeout=30) as response:
+            status = response.getcode()
+            raw = response.read().decode("utf-8")
+    except urllib.error.HTTPError as exc:
+        status = exc.code
+        raw = exc.read().decode("utf-8")
+
+    decoded = json.loads(raw)
+    if decoded.get("encrypted"):
+        decoded = decrypt_payload(decoded)
+    return status, decoded
+
+
+if __name__ == "__main__":
+    status, profile = api_request("GET", "/profile")
+    print("PROFILE", status)
+    print(json.dumps(profile, indent=2))
+
+    status, templates = api_request("GET", "/templates")
+    print("\nTEMPLATES", status)
+    print(json.dumps(templates, indent=2))
+
+    create_payload = {
+        "display_name": "API Demo User",
+        "phone": "989121234567",
+        "access_pin": "A12345",
+        "template_id": "PUT_TEMPLATE_ID_HERE",
+        "traffic_gb": 5,
+        "ip_limit": 1,
+        "duration_days": 30,
+    "duration_mode": "first_use",
+        "status": "active",
+        "notes": "Created by Python API example",
+    }
+
+    # Uncomment to create a customer.
+    # status, created = api_request("POST", "/customers/create", create_payload)
+    # print("\nCREATE CUSTOMER", status)
+    # print(json.dumps(created, indent=2))

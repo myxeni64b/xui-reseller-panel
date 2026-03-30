@@ -1,0 +1,47 @@
+# Runtime data
+/storage/backups/*
+/storage/cache/*
+/storage/config/*
+/storage/data/*
+/storage/locks/*
+/storage/logs/*
+
+# Keep placeholders
+!/storage/.gitkeep
+!/storage/.htaccess
+!/storage/cache/.gitkeep
+!/storage/cache/cookies/.gitkeep
+!/storage/config/.gitkeep
+!/storage/data/.gitkeep
+!/storage/locks/.gitkeep
+!/storage/logs/.gitkeep
+
+# Exclude generated QR cache specifically
+/storage/cache/qrcodes/*
+
+# Local cookies and cache
+/storage/cache/cookies/*
+/storage/cache/rate_limits/*
+
+# IDE / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Archives and backups
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.bak
+*.old
+
+# Secrets / local env
+.env
+*.pem
+*.key
+*.crt
+
+# Logs
+*.log
