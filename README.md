@@ -4,6 +4,8 @@ A production-oriented reseller panel for **3x-ui** nodes, built in **pure PHP** 
 
 > This panel is designed to be the **business and control layer**. 3x-ui acts as the **node/backend layer**. The panel keeps its own records for reseller permissions, credit accounting, notices, tickets, API access, Telegram bindings, public `/get` access, logs, and sync metadata.
 
+> DEPRECATED! -> BETTER TO USE [um-reseller-panel](https://github.com/myxeni64b/um-reseller-panel) INSTEAD!
+
 ---
 
 ## Table of Contents
